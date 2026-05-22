@@ -29,3 +29,15 @@ app.get('/api/houses', async (req, res) => {
 })
 
 app.listen(3000, () => console.log('Server running on port 3000'))
+
+app.post('/api/houses', async (req, res) => {
+  const { userId } = getAuth(req)
+  if (!userId) return res.status(401).json({ error: 'Unauthorized' })
+  
+  const { name, address } = req.body
+  const result = await pool.query(
+    'INSERT INTO houses (name, address, user_id) VALUES ($1, $2, $3) RETURNING *',
+    [name, address, userId]
+  )
+  res.json(result.rows[0])
+})
